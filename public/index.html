@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RescueLens</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" role="img">
+              <path d="M12 3.5 20 7.3v6.1c0 4.2-3.4 6.7-8 8-4.6-1.3-8-3.8-8-8V7.3l8-3.8Z" />
+              <path d="M8.8 12.1h6.4M12 8.9v6.4" />
+            </svg>
+          </span>
+          <div>
+            <h1>RescueLens</h1>
+            <p>Live disaster response agent</p>
+          </div>
+        </div>
+        <nav class="section-nav" aria-label="Dashboard sections">
+          <a class="section-nav-link is-active" href="#mission" data-nav-section="mission">Mission</a>
+          <a class="section-nav-link" href="#agent-run" data-nav-section="agent-run">Agent run</a>
+          <a class="section-nav-link" href="#live-data" data-nav-section="live-data">Live data</a>
+          <a class="section-nav-link" href="#vision" data-nav-section="vision">Vision</a>
+          <a class="section-nav-link" href="#operations" data-nav-section="operations">Operations</a>
+          <a class="section-nav-link" href="#recovery" data-nav-section="recovery">Recovery</a>
+          <a class="section-nav-link" href="#integrations" data-nav-section="integrations">Integrations</a>
+          <a class="section-nav-link" href="#observability" data-nav-section="observability">Observability</a>
+        </nav>
+        <div class="mission-meta">
+          <span class="status-dot"></span>
+          <span id="missionStatus">Loading mission</span>
+        </div>
+      </header>
+
+      <main>
+        <section id="mission" class="command-band section-block section-mission" data-section="Mission" aria-label="Mission overview">
+          <span class="section-label" aria-hidden="true">Mission</span>
+          <div>
+            <p class="eyebrow">Active incident</p>
+            <h2 id="incidentName">Loading live incident</h2>
+            <p id="missionSummary" class="summary-text">
+              Live public feed to satellite or field imagery to Gemini briefing to Arize review to approved response action.
+            </p>
+          </div>
+          <div class="metric-strip" aria-label="Mission metrics">
+            <div class="metric">
+              <span id="framesMetric">124</span>
+              <p>Live events</p>
+            </div>
+            <div class="metric urgent">
+              <span id="urgentMetric">18</span>
+              <p>Critical</p>
+            </div>
+            <div class="metric">
+              <span id="routesMetric">9</span>
+              <p>Feeds live</p>
+            </div>
+            <div class="metric">
+              <span id="latencyMetric">1.8s</span>
+              <p>Updated</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="agent-run" class="mission-run-panel section-block section-run" data-section="Agent run" aria-label="Guided mission run">
+          <span class="section-label" aria-hidden="true">Agent run</span>
+          <div class="mission-story">
+            <p class="eyebrow">Mission goal</p>
+            <h3>Turn a live disaster signal into a supervised response action</h3>
+            <p>
+              Public feeds locate the incident. Drone evidence drives Gemini planning. Arize watches the CV model for misses
+              before any dispatch is approved.
+            </p>
+          </div>
+          <div class="mission-progress">
+            <div class="mission-progress-head">
+              <div>
+                <p class="eyebrow">Agent chain</p>
+                <h3>Current run state</h3>
+              </div>
+              <span id="demoStatus" class="mini-chip">Ready</span>
+            </div>
+            <div id="missionStepList" class="mission-step-list"></div>
+          </div>
+          <div class="mission-action">
+            <div class="next-action">
+              <p class="eyebrow">Next best action</p>
+              <strong id="nextBestAction">Load live data</strong>
+            </div>
+            <div class="judge-control-grid" aria-label="Judge demo controls">
+              <button id="runDemoButton" class="primary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
+                Run judge demo
+              </button>
+              <button id="demoAnalyzeButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v18" />
+                  <path d="m4 11 8-8 8 8" />
+                  <path d="M5 21h14" />
+                </svg>
+                Analyze
+              </button>
+              <button id="demoArizeButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12a8 8 0 0 1 13.7-5.7" />
+                  <path d="M18 3v4h-4" />
+                  <path d="M20 12a8 8 0 0 1-13.7 5.7" />
+                  <path d="M6 21v-4h4" />
+                </svg>
+                Arize loop
+              </button>
+              <button id="demoReportButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+                  <path d="M14 2v6h6" />
+                  <path d="M8 13h8" />
+                  <path d="M8 17h5" />
+                </svg>
+                Report
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section id="live-data" class="live-data-grid section-block section-live" data-section="Live data" aria-label="Live disaster data">
+          <span class="section-label" aria-hidden="true">Live data</span>
+          <div class="panel live-map-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Find incident</p>
+                <h3>Search and map</h3>
+              </div>
+              <button id="refreshLiveDataButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12a8 8 0 0 1 13.7-5.7" />
+                  <path d="M18 3v4h-4" />
+                  <path d="M20 12a8 8 0 0 1-13.7 5.7" />
+                  <path d="M6 21v-4h4" />
+                </svg>
+                Refresh live data
+              </button>
+            </div>
+            <div id="liveFeedStatus" class="live-feed-status"></div>
+            <form id="locationSearchForm" class="location-search-form">
+              <input id="locationSearchInput" type="search" placeholder="Search location, city, address, or stadium" autocomplete="off" />
+              <button class="secondary-button" type="submit">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m21 21-4.3-4.3" />
+                  <circle cx="11" cy="11" r="7" />
+                </svg>
+                Search
+              </button>
+            </form>
+            <div id="locationSearchResult" class="location-search-result"></div>
+            <div id="liveWorldMap" class="live-world-map" aria-label="Global live event map"></div>
+          </div>
+
+          <aside class="panel live-events-panel" aria-label="Live event list">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Incident queue</p>
+                <h3>Live public events</h3>
+              </div>
+              <span id="liveGeneratedAt" class="mini-chip">loading</span>
+            </div>
+            <div id="liveEventList" class="live-event-list"></div>
+          </aside>
+        </section>
+
+        <section id="vision" class="workspace-grid section-block section-vision" data-section="Vision" aria-label="Computer vision workspace">
+          <span class="section-label" aria-hidden="true">Vision</span>
+          <aside class="panel frame-rail" aria-label="Sample disaster frames">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Sample CV scenario</p>
+                <h3>Fallback test frames</h3>
+              </div>
+              <button id="uploadButton" class="icon-button" type="button" title="Upload frame" aria-label="Upload frame">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 16V4m0 0 4.2 4.2M12 4 7.8 8.2" />
+                  <path d="M4.5 15.5v2.2A2.3 2.3 0 0 0 6.8 20h10.4a2.3 2.3 0 0 0 2.3-2.3v-2.2" />
+                </svg>
+              </button>
+              <input id="fileInput" type="file" accept="image/*" hidden />
+            </div>
+            <div id="frameList" class="frame-list"></div>
+          </aside>
+
+          <section class="panel vision-stage" aria-label="Selected frame analysis">
+            <div class="stage-head">
+              <div>
+                <p class="eyebrow">Selected frame</p>
+                <h3 id="selectedTitle">Evidence image</h3>
+              </div>
+              <span id="selectedSeverity" class="severity critical">Critical</span>
+            </div>
+            <div class="image-stage">
+              <div id="stageImage" class="mosaic-crop crop-top-left" role="img" aria-label="Disaster response image"></div>
+              <div id="heatmapLayer" class="heatmap-layer" aria-hidden="true"></div>
+              <div id="overlayLayer" class="overlay-layer"></div>
+              <div class="stage-badge">
+                <span>Arize CV</span>
+                <strong id="driftLabel">low-light water glare</strong>
+              </div>
+            </div>
+            <div class="stage-controls">
+              <button id="stageUploadButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 16V4m0 0 4.2 4.2M12 4 7.8 8.2" />
+                  <path d="M4.5 15.5v2.2A2.3 2.3 0 0 0 6.8 20h10.4a2.3 2.3 0 0 0 2.3-2.3v-2.2" />
+                </svg>
+                Upload drone image
+              </button>
+              <button id="analyzeButton" class="primary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12 4 4L19 6" />
+                </svg>
+                Analyze frame
+              </button>
+              <button id="improveButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12a8 8 0 0 1 13.7-5.7" />
+                  <path d="M18 3v4h-4" />
+                  <path d="M20 12a8 8 0 0 1-13.7 5.7" />
+                  <path d="M6 21v-4h4" />
+                </svg>
+                Run improvement
+              </button>
+            </div>
+          </section>
+
+          <aside class="panel decision-panel" aria-label="Agent decision">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Gemini decision</p>
+                <h3>Responder briefing</h3>
+              </div>
+              <div id="riskScore" class="risk-score">92</div>
+            </div>
+            <p id="analysisSummary" class="briefing-copy"></p>
+            <div class="recommendation">
+              <p>Recommended action</p>
+              <strong id="recommendationText"></strong>
+            </div>
+            <div class="decision-intel">
+              <div class="decision-intel-head">
+                <div>
+                  <p class="eyebrow">Detection layers</p>
+                  <strong>Field intelligence</strong>
+                </div>
+                <button id="savePlanButton" class="secondary-button" type="button">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
+                    <path d="M17 21v-8H7v8" />
+                    <path d="M7 3v5h8" />
+                  </svg>
+                  Save plan
+                </button>
+              </div>
+              <div id="intelligenceList" class="intelligence-list"></div>
+            </div>
+            <div id="evidenceList" class="evidence-list"></div>
+          </aside>
+        </section>
+
+        <section id="operations" class="operations-grid section-block section-ops" data-section="Operations" aria-label="Live response operations">
+          <span class="section-label" aria-hidden="true">Operations</span>
+          <section class="panel map-panel" aria-label="Live incident map">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Action console</p>
+                <h3 id="opsTitle">Live incident workflow</h3>
+              </div>
+              <span id="mapMode" class="mini-chip">Ops layer</span>
+            </div>
+            <div id="incidentMap" class="incident-map">
+              <div id="mapMarkers" class="map-markers" hidden></div>
+            </div>
+            <div id="routeList" class="route-list"></div>
+            <div id="safetyRoadList" class="safety-road-list"></div>
+          </section>
+
+          <aside class="panel voice-panel" aria-label="Voice agent">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Voice agent</p>
+                <h3>Incident copilot</h3>
+              </div>
+              <div class="voice-actions">
+                <button id="voiceButton" class="voice-control is-primary" type="button" title="Start voice command" aria-label="Start voice command">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z" />
+                    <path d="M19 11a7 7 0 0 1-14 0" />
+                    <path d="M12 18v3" />
+                  </svg>
+                  <span>Speak</span>
+                </button>
+                <button id="speakButton" class="voice-control" type="button" title="Read briefing" aria-label="Read briefing">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+                    <path d="M16 9.5a4 4 0 0 1 0 5" />
+                    <path d="M18.5 7a8 8 0 0 1 0 10" />
+                  </svg>
+                  <span>Read</span>
+                </button>
+                <button id="stopVoiceButton" class="voice-control" type="button" title="Stop voice" aria-label="Stop voice">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
+                  <span>Stop</span>
+                </button>
+              </div>
+            </div>
+            <div class="voice-readout">
+              <div class="voice-status-line">
+                <span class="voice-pulse" aria-hidden="true"></span>
+                <span id="voiceState">Ready</span>
+              </div>
+              <div class="voice-message">
+                <span>Heard</span>
+                <strong id="voiceTranscript">No command yet</strong>
+              </div>
+              <div class="voice-message">
+                <span>Agent reply</span>
+                <p id="voiceResponse">Choose a quick command, type, or tap Speak.</p>
+              </div>
+            </div>
+            <form id="voiceForm" class="voice-form">
+              <input id="voiceCommandInput" type="text" placeholder="Command RescueLens" autocomplete="off" />
+              <button class="secondary-button" type="submit">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M22 2 11 13" />
+                  <path d="m22 2-7 20-4-9-9-4 20-7Z" />
+                </svg>
+                Send
+              </button>
+            </form>
+            <div id="quickCommands" class="quick-command-grid"></div>
+            <div id="actionLog" class="action-log"></div>
+          </aside>
+        </section>
+
+        <section id="recovery" class="rehab-grid section-block section-rehab" data-section="Recovery" aria-label="Rehabilitation planning">
+          <span class="section-label" aria-hidden="true">Recovery</span>
+          <div class="panel rehab-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Recovery planning</p>
+                <h3>3D rehabilitation concept</h3>
+              </div>
+              <span id="rehabMode" class="mini-chip">TCT plan</span>
+            </div>
+            <div id="rehabScene" class="rehab-scene" aria-label="3D-style rehabilitation concept"></div>
+            <div id="rehabPlanList" class="rehab-plan-list"></div>
+          </div>
+        </section>
+
+        <section id="integrations" class="agent-builder-grid section-block section-integrations" data-section="Integrations" aria-label="Agent Builder and partner integrations">
+          <span class="section-label" aria-hidden="true">Integrations</span>
+          <div class="panel integration-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Runtime integrations</p>
+                <h3>Gemini + Agent Builder + Arize</h3>
+              </div>
+              <button id="refreshIntegrationsButton" class="icon-button" type="button" title="Refresh integrations" aria-label="Refresh integrations">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12a8 8 0 0 1 13.7-5.7" />
+                  <path d="M18 3v4h-4" />
+                  <path d="M20 12a8 8 0 0 1-13.7 5.7" />
+                  <path d="M6 21v-4h4" />
+                </svg>
+              </button>
+            </div>
+            <div id="integrationList" class="integration-list"></div>
+          </div>
+
+          <div class="panel mcp-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Arize partner loop</p>
+                <h3>Failure slices + eval patch</h3>
+              </div>
+              <button id="arizeWorkflowButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 3v18" />
+                  <path d="m5 10 7-7 7 7" />
+                  <path d="M5 21h14" />
+                </svg>
+                Run MCP loop
+              </button>
+            </div>
+            <div id="mcpWorkflow" class="mcp-workflow">
+              Run the Arize MCP loop to create a failure slice, compare eval results, and propose a patch.
+            </div>
+          </div>
+
+          <div class="panel artifact-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Human-approved outputs</p>
+                <h3>Reports and dispatch tasks</h3>
+              </div>
+              <button id="missionReportButton" class="secondary-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+                  <path d="M14 2v6h6" />
+                  <path d="M8 13h8" />
+                  <path d="M8 17h5" />
+                </svg>
+                Report
+              </button>
+            </div>
+            <div id="artifactList" class="artifact-list"></div>
+          </div>
+        </section>
+
+        <section id="observability" class="observability-grid section-block section-observability" data-section="Observability" aria-label="Arize observability">
+          <span class="section-label" aria-hidden="true">Observability</span>
+          <div class="panel cv-coverage-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">CV observability</p>
+                <h3>Arize model coverage</h3>
+              </div>
+              <span id="cvMode" class="mini-chip">loading</span>
+            </div>
+            <div id="cvCoverageList" class="cv-coverage-list"></div>
+            <div id="cvSchemaNote" class="cv-schema-note"></div>
+          </div>
+
+          <div class="panel trace-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Agent trace</p>
+                <h3>Tool execution timeline</h3>
+              </div>
+              <span id="traceId" class="trace-id">trace pending</span>
+            </div>
+            <div id="traceList" class="trace-list"></div>
+          </div>
+
+          <div class="panel cluster-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Embedding drift</p>
+                <h3>Similar failure clusters</h3>
+              </div>
+              <span class="mini-chip">UMAP</span>
+            </div>
+            <div id="clusterMap" class="cluster-map"></div>
+            <div id="cvSimilarityList" class="cv-similarity-list"></div>
+          </div>
+
+          <div class="panel eval-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Eval guardrails</p>
+                <h3>Recall and false negatives</h3>
+              </div>
+              <span id="evalDelta" class="mini-chip success">+17 recall</span>
+            </div>
+            <div id="cvMetricList" class="cv-metric-list"></div>
+            <div id="evalList" class="eval-list"></div>
+            <div id="improvementPatch" class="patch-box">
+              Run improvement to generate a Phoenix-backed prompt and review-policy patch.
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

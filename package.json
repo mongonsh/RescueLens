@@ -1,0 +1,24 @@
+{
+  "name": "rescuelens",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "RescueLens: a self-improving disaster response computer vision agent for the Google Cloud Rapid Agent Hackathon.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "check": "node --check server.js && node --check src/env.js && node --check src/missionData.js && node --check src/geminiClient.js && node --check src/arizePhoenix.js && node --check src/arizeMcpClient.js && node --check src/agentBuilderClient.js && node --check src/arizeCv.js && node --check src/actionStore.js && node --check src/integrationStatus.js && node --check src/submissionReadiness.js && node --check src/liveData.js && node --check public/app.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "arize",
+    "phoenix",
+    "computer-vision",
+    "gemini",
+    "disaster-response",
+    "agent"
+  ],
+  "license": "Apache-2.0"
+}

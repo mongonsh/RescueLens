@@ -1,0 +1,43 @@
+displayName: RescueLens Disaster Response Agent
+description: >
+  Gemini-powered disaster response agent that turns drone and field images into
+  rescue actions, live map updates, Arize Phoenix MCP failure analysis, and
+  human-approved mission artifacts.
+model: gemini-3.5-flash
+runtime: cloud-run
+entrypoint: https://YOUR_CLOUD_RUN_URL
+tools:
+  - name: analyze_uploaded_frame
+    type: http
+    method: POST
+    url: https://YOUR_CLOUD_RUN_URL/api/analyze-upload
+    purpose: Analyze disaster imagery with Gemini vision and trace the decision.
+  - name: plan_voice_command
+    type: http
+    method: POST
+    url: https://YOUR_CLOUD_RUN_URL/api/agent-command
+    purpose: Convert commander intent into an action plan under human oversight.
+  - name: arize_phoenix_failure_analysis
+    type: mcp
+    server: "@arizeai/phoenix-mcp"
+    url: ${ARIZE_MCP_HTTP_URL}
+    purpose: Inspect Phoenix observability data, failure slices, prompts, datasets, and experiments.
+  - name: invoke_agent_builder_handoff
+    type: http
+    method: POST
+    url: https://YOUR_CLOUD_RUN_URL/api/agent-builder/invoke
+    purpose: Invoke the Gemini Enterprise Agent Platform Interactions API and create a managed-agent handoff proof.
+  - name: create_action_artifact
+    type: http
+    method: POST
+    url: https://YOUR_CLOUD_RUN_URL/api/artifacts
+    purpose: Create dispatch tasks, route closures, eval reports, and mission reports.
+guardrails:
+  - Keep a trained responder in the approval loop for all dispatch and route closure actions.
+  - Never claim a rescue, evacuation, or road closure is completed without human confirmation.
+  - Route low-confidence life-safety findings to human review.
+demoCommands:
+  - Brief Sector A7 and dispatch a boat team.
+  - Use Arize to inspect similar low-light failures.
+  - Close the west service route and create a report.
+  - Run the improvement loop on the low-light failure slice.
