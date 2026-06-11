@@ -1,7 +1,7 @@
 import { getAgentBuilderRuntimeStatus } from "./agentBuilderClient.js";
 import { getIntegrationStatus } from "./integrationStatus.js";
 
-export function buildSubmissionReadiness({ liveData = null, agentBuilderRun = null, arizeWorkflow = null } = {}) {
+export function buildRuntimeVerification({ liveData = null, agentBuilderRun = null, arizeWorkflow = null } = {}) {
   const integrations = getIntegrationStatus();
   const agentBuilder = getAgentBuilderRuntimeStatus();
   const liveFeeds = liveData?.feeds || [];
@@ -30,7 +30,7 @@ export function buildSubmissionReadiness({ liveData = null, agentBuilderRun = nu
       status: agentBuilderRun?.called ? "pass" : "warn",
       detail: agentBuilderRun?.called
         ? `Live call completed through ${agentBuilderRun.mode}`
-        : "Run judge demo after deploy; the Agent Builder row must show interaction called"
+        : "Run the guided workflow after deploy; the Agent Builder row must show interaction called"
     },
     {
       id: "arize_mcp_config",
@@ -47,7 +47,7 @@ export function buildSubmissionReadiness({ liveData = null, agentBuilderRun = nu
       status: arizeWorkflow?.connected ? "pass" : "warn",
       detail: arizeWorkflow?.connected
         ? `Connected through ${arizeWorkflow.mode}`
-        : "Run judge demo after deploy; the Arize row must be http or stdio, not demo"
+        : "Run the guided workflow after deploy; the Arize row must be http or stdio, not demo"
     },
     {
       id: "arize_cv",
@@ -68,8 +68,8 @@ export function buildSubmissionReadiness({ liveData = null, agentBuilderRun = nu
   ];
 
   return {
-    prizeReady: checks.every((check) => check.status === "pass"),
-    requiredLiveReady: checks
+    systemReady: checks.every((check) => check.status === "pass"),
+    runtimeReady: checks
       .filter((check) => ["gemini", "agent_builder_config", "agent_builder_live", "arize_mcp_config", "arize_mcp_live"].includes(check.id))
       .every((check) => check.status === "pass"),
     checks

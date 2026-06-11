@@ -10,7 +10,7 @@ RescueLens uses Gemini for three separate agent capabilities:
 
 Default model settings live in `.env.example`. The app defaults to Gemini 3.5 Flash and can fall back to Gemini 2.5 Flash if a preview model is not available for the key.
 
-The judge demo calls `/api/agent-command` through `runGeminiJudgePlan()` so Gemini command planning is invoked during the main demo path, not only through optional voice controls.
+The guided workflow calls `/api/agent-command` through `runGeminiDemoPlan()` so Gemini command planning is invoked during the main product path, not only through optional voice controls.
 
 ## Google Cloud Agent Builder
 
@@ -40,7 +40,7 @@ If `AGENT_BUILDER_ENDPOINT` is not set, RescueLens falls back to the preview Int
 
 RescueLens supports three MCP modes:
 
-- `demo`: no Phoenix credentials. The app returns an MCP-shaped workflow for judging/demo continuity.
+- `demo`: no Phoenix credentials. The app returns an MCP-shaped workflow for local development continuity.
 - `http`: set `ARIZE_MCP_HTTP_URL` to a JSON-RPC bridge that supports MCP `tools/list` and `tools/call`.
 - `stdio`: set `PHOENIX_BASE_URL` and `PHOENIX_API_KEY`; RescueLens can launch `@arizeai/phoenix-mcp` over stdio.
 
@@ -63,7 +63,7 @@ The visible UI action is **Run MCP loop**. It creates or discovers:
 - drift cluster, similar failures, monitors, and evaluator definitions
 - trace spans for classification, detection, segmentation, embedding drift, and eval coverage
 
-Without Arize credentials the endpoint runs in `local-demo` mode so judges can inspect the exact schemas and UI behavior. Set `ARIZE_API_KEY` and `ARIZE_SPACE_ID` when wiring the same payload into a live Arize AX project.
+Without Arize credentials the endpoint runs in `local-demo` mode so users can inspect the exact schemas and UI behavior. Set `ARIZE_API_KEY` and `ARIZE_SPACE_ID` when wiring the same payload into a live Arize AX project.
 
 ## Action Artifacts
 
@@ -76,9 +76,9 @@ The agent now creates concrete artifacts through `/api/artifacts`:
 
 These artifacts prove that RescueLens moves beyond chat: Gemini plans actions, Phoenix MCP analyzes reliability, and the app writes operational outputs for human approval.
 
-## Required Runtime Proof
+## Runtime Integration Verification
 
-Click **Run judge demo** and then inspect the Runtime integrations panel:
+Click **Run agent workflow** and then inspect the Runtime integrations panel:
 
 - Gemini row should show `called: ...` after `/api/agent-command`.
 - Arize Phoenix MCP row should show `http`, `stdio`, `demo`, or `fallback` after `/api/arize/failure-analysis`.

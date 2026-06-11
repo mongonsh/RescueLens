@@ -18,6 +18,10 @@
   --amber: #b56f16;
   --blue: #2e5d9f;
   --violet: #6550a8;
+  --arize-midnight: #25204f;
+  --arize-plum: #4b2f69;
+  --arize-wine: #601545;
+  --arize-rose: #7b1d55;
   --arize-indigo: #4f46e5;
   --arize-violet: #7c3aed;
   --arize-cyan: #22d3ee;
@@ -30,6 +34,13 @@
   --shadow: 0 18px 48px rgba(18, 23, 20, 0.1);
   --shadow-tight: 0 8px 22px rgba(18, 23, 20, 0.08);
   --ring: 0 0 0 3px rgba(8, 120, 139, 0.18);
+  --arize-gradient:
+    radial-gradient(circle at 74% 14%, rgba(124, 58, 237, 0.32), transparent 32%),
+    radial-gradient(circle at 18% 86%, rgba(34, 211, 238, 0.16), transparent 28%),
+    linear-gradient(135deg, #35285f 0%, #434b7f 42%, #563065 70%, #641744 100%);
+  --arize-gradient-soft:
+    linear-gradient(145deg, rgba(53, 40, 95, 0.11), rgba(67, 75, 127, 0.08) 42%, rgba(100, 23, 68, 0.1)),
+    var(--panel);
 }
 
 * {
@@ -45,10 +56,14 @@ body {
   margin: 0;
   min-width: 320px;
   background:
+    radial-gradient(circle at 84% 8%, rgba(124, 58, 237, 0.09), transparent 26%),
+    radial-gradient(circle at 8% 22%, rgba(34, 211, 238, 0.07), transparent 24%),
     linear-gradient(90deg, rgba(21, 25, 23, 0.025) 1px, transparent 1px),
     linear-gradient(0deg, rgba(21, 25, 23, 0.018) 1px, transparent 1px),
     var(--paper);
   background-size:
+    auto,
+    auto,
     44px 44px,
     44px 44px,
     auto;
@@ -115,25 +130,23 @@ button {
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background:
-    conic-gradient(
-      from 210deg,
-      var(--google-blue),
-      var(--arize-indigo),
-      var(--arize-mint),
-      var(--google-green),
-      var(--google-yellow),
-      var(--google-red),
-      var(--google-blue)
-    );
+  width: 58px;
+  height: 58px;
+  border-radius: 0;
+  background: transparent;
   color: #fff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24), 0 10px 24px rgba(0, 0, 0, 0.22);
+  box-shadow: none;
+  overflow: visible;
 }
 
-.brand-mark svg,
+.brand-mark img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.22));
+}
+
 button svg {
   width: 22px;
   height: 22px;
@@ -417,10 +430,12 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.075), transparent 42%),
-    linear-gradient(90deg, #151917, #24312c 54%, #17353a);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 44%),
+    var(--arize-gradient);
   color: #f9fbf6;
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 24px 60px rgba(41, 22, 84, 0.24),
+    0 8px 22px rgba(18, 23, 20, 0.1);
   overflow: hidden;
 }
 
@@ -472,10 +487,10 @@ main {
   background:
     linear-gradient(
       90deg,
-      var(--arize-violet),
+      rgba(255, 255, 255, 0.52),
       var(--arize-cyan),
-      var(--google-blue),
-      var(--google-green)
+      var(--arize-violet),
+      var(--arize-rose)
     );
   opacity: 0.74;
 }
@@ -519,7 +534,9 @@ main {
   padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.09);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.065)),
+    rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.11);
 }
 
@@ -591,8 +608,14 @@ main {
   display: grid;
   grid-template-columns: minmax(280px, 0.78fr) minmax(420px, 1.15fr) minmax(280px, 0.72fr);
   gap: 14px;
-  padding: 16px 0 0;
+  padding: 16px;
   align-items: stretch;
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(34, 211, 238, 0.16), transparent 26%),
+    radial-gradient(circle at 82% 100%, rgba(96, 21, 69, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(53, 40, 95, 0.08), rgba(255, 254, 250, 0.22) 46%, rgba(124, 58, 237, 0.08));
 }
 
 .mission-story,
@@ -606,21 +629,28 @@ main {
 }
 
 .mission-story {
-  border-color: color-mix(in srgb, var(--arize-cyan) 32%, var(--line));
+  border-color: rgba(255, 255, 255, 0.14);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--arize-cyan) 12%, transparent), transparent 58%),
-    var(--panel);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 50%),
+    var(--arize-gradient);
+  color: #fffefa;
+  box-shadow:
+    0 20px 46px rgba(54, 32, 98, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .mission-progress {
-  border-color: rgba(21, 25, 23, 0.12);
-  background: var(--panel);
+  border-color: color-mix(in srgb, var(--arize-indigo) 24%, var(--line));
+  background:
+    linear-gradient(180deg, rgba(79, 70, 229, 0.08), transparent 52%),
+    var(--panel);
 }
 
 .mission-action {
-  border-color: color-mix(in srgb, var(--google-yellow) 42%, var(--line));
+  border-color: color-mix(in srgb, var(--arize-rose) 32%, var(--line));
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--google-yellow) 16%, transparent), transparent 62%),
+    linear-gradient(145deg, rgba(96, 21, 69, 0.1), transparent 58%),
+    linear-gradient(20deg, rgba(34, 211, 238, 0.08), transparent 42%),
     var(--panel);
 }
 
@@ -632,9 +662,13 @@ main {
   padding: 18px;
 }
 
-.mission-story p:not(.eyebrow),
 .next-action strong {
   color: var(--ink);
+  line-height: 1.45;
+}
+
+.mission-story p:not(.eyebrow) {
+  color: rgba(248, 250, 245, 0.78);
   line-height: 1.45;
 }
 
@@ -645,8 +679,15 @@ main {
 }
 
 .mission-story p:not(.eyebrow) {
-  color: var(--muted);
   font-size: 14px;
+}
+
+.mission-story .eyebrow {
+  color: #b9f4ef;
+}
+
+.mission-story h3 {
+  color: #fffefa;
 }
 
 .mission-progress {
@@ -697,7 +738,7 @@ main {
 }
 
 .mission-run-step.is-ready .mission-step-index {
-  background: linear-gradient(135deg, var(--google-green), var(--arize-mint), var(--arize-cyan));
+  background: linear-gradient(135deg, var(--arize-indigo), var(--arize-violet), var(--arize-rose));
 }
 
 .mission-run-step strong {
@@ -742,13 +783,13 @@ main {
   overflow-wrap: anywhere;
 }
 
-.judge-control-grid {
+.demo-control-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
-.judge-control-grid .primary-button {
+.demo-control-grid .primary-button {
   grid-column: 1 / -1;
 }
 
@@ -783,6 +824,13 @@ main {
 
 .observability-grid {
   grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr) minmax(320px, 0.9fr);
+  padding: 16px;
+  border: 1px solid rgba(124, 58, 237, 0.14);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(34, 211, 238, 0.14), transparent 28%),
+    radial-gradient(circle at 92% 72%, rgba(96, 21, 69, 0.12), transparent 30%),
+    linear-gradient(135deg, rgba(53, 40, 95, 0.08), rgba(255, 254, 250, 0.26) 46%, rgba(124, 58, 237, 0.09));
 }
 
 .rehab-grid {
@@ -812,6 +860,14 @@ main > .section-block + .section-block {
 .cluster-panel,
 .eval-panel {
   border-top: 3px solid var(--arize-violet);
+}
+
+.mcp-panel,
+.section-observability .panel {
+  border-color: color-mix(in srgb, var(--arize-violet) 24%, var(--line));
+  background:
+    linear-gradient(180deg, rgba(79, 70, 229, 0.07), transparent 46%),
+    var(--panel);
 }
 
 .trace-panel {
@@ -851,6 +907,37 @@ main > .section-block + .section-block {
   padding: 16px 18px;
   border-bottom: 1px solid var(--line);
   background: rgba(247, 248, 242, 0.72);
+}
+
+.mcp-panel .panel-head,
+.section-observability .panel-head {
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.07), transparent 48%),
+    var(--arize-gradient);
+  color: #fffefa;
+}
+
+.mcp-panel .panel-head .eyebrow,
+.section-observability .panel-head .eyebrow {
+  color: #b9f4ef;
+}
+
+.mcp-panel .panel-head h3,
+.section-observability .panel-head h3 {
+  color: #fffefa;
+}
+
+.mcp-panel .panel-head .secondary-button {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fffefa;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.mcp-panel .panel-head .secondary-button:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.16);
 }
 
 @media (min-width: 1181px) {
@@ -940,6 +1027,58 @@ main > .section-block + .section-block {
 .primary-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 28px color-mix(in srgb, var(--arize-indigo) 28%, transparent);
+}
+
+.top-button {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  min-width: 86px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 52%),
+    var(--arize-gradient);
+  color: #fffefa;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  box-shadow:
+    0 18px 36px rgba(41, 22, 84, 0.24),
+    0 8px 18px rgba(18, 23, 20, 0.14);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.top-button.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.top-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 42px rgba(41, 22, 84, 0.3),
+    0 10px 22px rgba(18, 23, 20, 0.16);
+}
+
+.top-button svg {
+  width: 18px;
+  height: 18px;
 }
 
 button:focus-visible,
@@ -2495,8 +2634,13 @@ button:disabled {
   }
 
   .brand-mark {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .brand-mark img {
+    width: 50px;
+    height: 50px;
   }
 
   .section-nav {
@@ -2539,7 +2683,7 @@ button:disabled {
   .metric-strip,
   .workflow-strip,
   .mission-run-panel,
-  .judge-control-grid,
+  .demo-control-grid,
   .frame-list,
   .route-list,
   .quick-command-grid,
@@ -2559,6 +2703,19 @@ button:disabled {
 
   h2 {
     font-size: 29px;
+  }
+
+  .top-button {
+    right: 14px;
+    bottom: 14px;
+    min-width: 48px;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+  }
+
+  .top-button span {
+    display: none;
   }
 
   .incident-map {

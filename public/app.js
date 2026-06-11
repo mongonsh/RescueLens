@@ -7,7 +7,7 @@ const state = {
   currentAudio: null,
   currentAudioUrl: null,
   integrations: null,
-  submissionReadiness: null,
+  runtimeVerification: null,
   artifacts: [],
   mcpWorkflow: null,
   cvTelemetry: null,
@@ -141,7 +141,8 @@ const elements = {
   improveButton: document.querySelector("#improveButton"),
   stageUploadButton: document.querySelector("#stageUploadButton"),
   uploadButton: document.querySelector("#uploadButton"),
-  fileInput: document.querySelector("#fileInput")
+  fileInput: document.querySelector("#fileInput"),
+  topButton: document.querySelector("#topButton")
 };
 
 async function fetchJson(url, options) {
@@ -1027,13 +1028,13 @@ function renderIntegrations() {
       detail: state.mcpWorkflow?.summary || `${state.integrations.arize.mcpServer}; Phoenix ${state.integrations.arize.phoenixBaseUrl}.`
     },
     {
-      name: "Prize readiness",
+      name: "Runtime verification",
       status: state.geminiPlan?.action && state.agentBuilderRun?.called && state.mcpWorkflow?.connected ? "live" : "warn",
-      value: state.geminiPlan?.action && state.agentBuilderRun?.called && state.mcpWorkflow?.connected ? "required tech live" : "required tech pending",
+      value: state.geminiPlan?.action && state.agentBuilderRun?.called && state.mcpWorkflow?.connected ? "workflow verified" : "workflow pending",
       detail:
         state.geminiPlan?.action && state.agentBuilderRun?.called && state.mcpWorkflow?.connected
           ? "Gemini command planning, Agent Builder, and Arize MCP were all invoked in this session."
-          : "Hosted demo must show Gemini called, Agent Builder interaction called, and Arize MCP http/stdio before submission."
+          : "Run the guided workflow to verify Gemini planning, Agent Builder handoff, and Arize MCP failure analysis."
     }
   ];
 
@@ -1792,8 +1793,8 @@ async function refreshIntegrations() {
   renderIntegrations();
 }
 
-async function refreshSubmissionReadiness() {
-  state.submissionReadiness = await fetchJson("/api/submission-readiness");
+async function refreshRuntimeVerification() {
+  state.runtimeVerification = await fetchJson("/api/runtime-verification");
   renderIntegrations();
 }
 
@@ -1964,7 +1965,7 @@ async function saveSafetyPlan() {
   }
 }
 
-async function runGeminiJudgePlan() {
+async function runGeminiDemoPlan() {
   try {
     const plan = await requestAgentPlan(
       "Brief this incident, check model risk with Arize, and prepare a human-approved response handoff."
@@ -1972,7 +1973,7 @@ async function runGeminiJudgePlan() {
     state.geminiPlan = plan;
     addActionLog(`Gemini command planner returned ${plan.action}.`);
     setVoiceResponse(
-      "Gemini judge plan",
+      "Gemini workflow plan",
       plan.spokenResponse || "Gemini produced the supervised response plan.",
       false
     );
@@ -1980,7 +1981,7 @@ async function runGeminiJudgePlan() {
     renderMissionRun();
     return plan;
   } catch (error) {
-    console.warn("Gemini judge plan failed", error);
+    console.warn("Gemini workflow plan failed", error);
     state.geminiPlan = {
       error: error instanceof Error ? error.message : "Gemini command planner failed"
     };
@@ -2020,9 +2021,9 @@ async function runDemoSequence() {
   state.demoRunning = true;
   state.demoStatus = "Running";
   renderMissionRun();
-  addActionLog("Judge demo started: live incident to Gemini to Arize to approved report.");
+  addActionLog("Agent workflow started: live incident to Gemini to Arize to approved report.");
   setVoiceResponse(
-    "Run judge demo",
+    "Run agent workflow",
     "Starting the supervised mission run: incident selection, drone evidence, Gemini planning, Arize CV review, and a human-approved report.",
     false
   );
@@ -2035,7 +2036,7 @@ async function runDemoSequence() {
     if (!state.selectedLiveEvent && state.liveData?.events?.length) {
       const event = pickDefaultLiveEvent(state.liveData.events);
       if (setLiveEventContext(event)) {
-        addActionLog(`Judge demo selected ${event.title} from ${event.source}.`);
+        addActionLog(`Agent workflow selected ${event.title} from ${event.source}.`);
         renderAll();
       }
     }
@@ -2047,7 +2048,7 @@ async function runDemoSequence() {
     state.demoStatus = "Gemini";
     renderMissionRun();
     await analyzeSelectedFrame();
-    await runGeminiJudgePlan();
+    await runGeminiDemoPlan();
 
     state.demoStatus = "Arize MCP";
     renderMissionRun();
@@ -2056,25 +2057,25 @@ async function runDemoSequence() {
     state.demoStatus = "Agent Builder";
     renderMissionRun();
     await invokeAgentBuilderRuntime();
-    refreshSubmissionReadiness().catch((error) => console.warn("Submission readiness failed", error));
+    refreshRuntimeVerification().catch((error) => console.warn("Runtime verification failed", error));
 
     state.demoStatus = "Report";
     renderMissionRun();
     await createActionArtifact("mission_report");
 
     state.demoStatus = "Complete";
-    addActionLog("Judge demo completed: report artifact is ready for human approval.");
+    addActionLog("Agent workflow completed: report artifact is ready for human approval.");
     setVoiceResponse(
-      "Run judge demo",
+      "Run agent workflow",
       "Mission run complete. Gemini produced the response plan, Arize checked CV failure coverage, and the human-approved mission report is ready.",
       false
     );
   } catch (error) {
     console.error(error);
     state.demoStatus = "Needs review";
-    addActionLog("Judge demo stopped before completion; check integration status.");
+    addActionLog("Agent workflow stopped before completion; check integration status.");
     setVoiceResponse(
-      "Run judge demo",
+      "Run agent workflow",
       "The mission run stopped before completion. Check live feed, Gemini, or Arize integration status, then rerun the demo.",
       false
     );
@@ -2350,6 +2351,8 @@ function setupSectionNav() {
   const nav = document.querySelector(".section-nav");
   const topbar = document.querySelector(".topbar");
   const sections = links.map((link) => document.querySelector(link.getAttribute("href"))).filter(Boolean);
+  let activeSectionId = "";
+  let scrollFrame = 0;
   if (!links.length || !sections.length) {
     return;
   }
@@ -2363,13 +2366,20 @@ function setupSectionNav() {
     nav.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
   }
 
+  function getTopbarOffset() {
+    return topbar?.offsetHeight || 82;
+  }
+
   function scrollToSection(section) {
-    const topbarHeight = topbar?.offsetHeight || 82;
-    const top = Math.max(0, section.getBoundingClientRect().top + window.scrollY - topbarHeight - 14);
+    const top = Math.max(0, section.getBoundingClientRect().top + window.scrollY - getTopbarOffset() - 14);
     window.scrollTo({ top, behavior: "smooth" });
   }
 
   function setActiveSection(sectionId, options = {}) {
+    if (!sectionId || (sectionId === activeSectionId && !options.force)) {
+      return;
+    }
+    activeSectionId = sectionId;
     links.forEach((link) => {
       const isActive = link.dataset.navSection === sectionId;
       link.classList.toggle("is-active", isActive);
@@ -2381,6 +2391,41 @@ function setupSectionNav() {
       } else {
         link.removeAttribute("aria-current");
       }
+    });
+  }
+
+  function getCurrentSection() {
+    const pageBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 12;
+    if (pageBottom) {
+      return sections[sections.length - 1];
+    }
+
+    const anchor = window.scrollY + getTopbarOffset() + 34;
+    const passedSections = sections
+      .map((section) => ({ section, top: section.getBoundingClientRect().top + window.scrollY }))
+      .filter((entry) => entry.top <= anchor);
+    return passedSections.length ? passedSections[passedSections.length - 1].section : sections[0];
+  }
+
+  function updateTopButton() {
+    elements.topButton?.classList.toggle("is-visible", window.scrollY > 420);
+  }
+
+  function syncScrollState(options = {}) {
+    const current = getCurrentSection();
+    if (current?.id) {
+      setActiveSection(current.id, { centerNav: options.centerNav, force: options.force });
+    }
+    updateTopButton();
+  }
+
+  function requestScrollSync() {
+    if (scrollFrame) {
+      return;
+    }
+    scrollFrame = window.requestAnimationFrame(() => {
+      scrollFrame = 0;
+      syncScrollState({ centerNav: true });
     });
   }
 
@@ -2398,6 +2443,11 @@ function setupSectionNav() {
     });
   });
 
+  elements.topButton?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setActiveSection(sections[0].id, { force: true });
+  });
+
   if (window.location.hash) {
     const initialSection = document.querySelector(window.location.hash);
     if (initialSection) {
@@ -2408,37 +2458,9 @@ function setupSectionNav() {
     }
   }
 
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target?.id) {
-          setActiveSection(visible.target.id, { centerNav: false });
-        }
-      },
-      {
-        rootMargin: "-18% 0px -66% 0px",
-        threshold: [0.12, 0.24, 0.4, 0.58]
-      }
-    );
-    sections.forEach((section) => observer.observe(section));
-    return;
-  }
-
-  window.addEventListener(
-    "scroll",
-    () => {
-      const current = sections
-        .map((section) => ({ section, distance: Math.abs(section.getBoundingClientRect().top - 110) }))
-        .sort((a, b) => a.distance - b.distance)[0]?.section;
-      if (current?.id) {
-        setActiveSection(current.id, { centerNav: false });
-      }
-    },
-    { passive: true }
-  );
+  syncScrollState({ centerNav: false, force: true });
+  window.addEventListener("scroll", requestScrollSync, { passive: true });
+  window.addEventListener("resize", () => syncScrollState({ centerNav: false, force: true }), { passive: true });
 }
 
 elements.analyzeButton.addEventListener("click", analyzeSelectedFrame);
@@ -2480,13 +2502,19 @@ elements.fileInput.addEventListener("change", (event) => {
   }
 });
 
+setupSectionNav();
+setupVoiceRecognition();
+
 const mission = await fetchJson("/api/mission");
 state.mission = mission;
 state.selectedFrame = mission.frames[0];
 state.actionLog = mission.operations.actionLog;
-await Promise.all([refreshIntegrations(), refreshSubmissionReadiness(), refreshArtifacts(), refreshLiveData()]);
-setupVoiceRecognition();
-setupSectionNav();
+const startupResults = await Promise.allSettled([refreshIntegrations(), refreshRuntimeVerification(), refreshArtifacts(), refreshLiveData()]);
+startupResults.forEach((result) => {
+  if (result.status === "rejected") {
+    console.warn("Startup refresh failed", result.reason);
+  }
+});
 renderQuickCommands();
 renderAll();
 refreshCvTelemetry().catch((error) => console.warn("Arize CV telemetry failed", error));

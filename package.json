@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "RescueLens: a self-improving disaster response computer vision agent for the Google Cloud Rapid Agent Hackathon.",
+  "description": "RescueLens: a supervised disaster-response agent for live incidents, drone imagery, computer vision evidence, and human-approved rescue decisions.",
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
-    "check": "node --check server.js && node --check src/env.js && node --check src/missionData.js && node --check src/geminiClient.js && node --check src/arizePhoenix.js && node --check src/arizeMcpClient.js && node --check src/agentBuilderClient.js && node --check src/arizeCv.js && node --check src/actionStore.js && node --check src/integrationStatus.js && node --check src/submissionReadiness.js && node --check src/liveData.js && node --check public/app.js"
+    "check": "node --check server.js && node --check src/env.js && node --check src/missionData.js && node --check src/geminiClient.js && node --check src/arizePhoenix.js && node --check src/arizeMcpClient.js && node --check src/agentBuilderClient.js && node --check src/arizeCv.js && node --check src/actionStore.js && node --check src/integrationStatus.js && node --check src/runtimeVerification.js && node --check src/liveData.js && node --check public/app.js"
   },
   "engines": {
     "node": ">=20"

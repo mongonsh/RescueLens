@@ -283,7 +283,7 @@ export async function fetchLiveDisasterData() {
       name: "NOAA/NWS Alerts",
       url: "https://api.weather.gov/alerts/active?status=actual&message_type=alert",
       headers: {
-        "user-agent": process.env.NWS_USER_AGENT || "RescueLens hackathon demo; contact=dev@example.com",
+        "user-agent": process.env.NWS_USER_AGENT || "RescueLens disaster response demo; contact=dev@example.com",
         accept: "application/geo+json, application/json"
       },
       normalize: normalizeNws
@@ -410,7 +410,7 @@ async function geocodeWithNominatim(search) {
   geocodeUrl.searchParams.set("addressdetails", "1");
 
   const places = await fetchJson(geocodeUrl, {
-    "user-agent": process.env.NOMINATIM_USER_AGENT || "RescueLens hackathon demo; contact=dev@example.com",
+    "user-agent": process.env.NOMINATIM_USER_AGENT || "RescueLens disaster response demo; contact=dev@example.com",
     referer: process.env.NOMINATIM_REFERER || "http://localhost:3000",
     accept: "application/json"
   });

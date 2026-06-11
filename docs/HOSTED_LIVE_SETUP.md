@@ -1,6 +1,6 @@
 # Hosted Live Setup
 
-Use this to make the hosted RescueLens URL show **live Agent Builder** and **live Arize MCP** before Devpost submission.
+Use this to make the hosted RescueLens URL show **live Agent Builder** and **live Arize MCP** in the public product demo.
 
 ## 1. Required live values
 
@@ -62,21 +62,21 @@ gcloud run services add-iam-policy-binding YOUR_AGENT_SERVICE \
   --role "roles/run.invoker"
 ```
 
-## 4. Judge proof
+## 4. Hosted verification
 
-Open the hosted URL in an incognito browser and click **Run judge demo**.
+Open the hosted URL in an incognito browser and click **Run agent workflow**.
 
 The Runtime integrations panel must show:
 
 - Gemini 3 reasoning: `called: ...`
 - Google Cloud Agent Builder: `interaction called`
 - Arize Phoenix MCP: `http` or `stdio`
-- Prize readiness: `required tech live`
+- Runtime verification: `workflow verified`
 
 Also check:
 
 ```bash
-curl -X POST "$HOSTED_URL/api/submission-readiness/live-check"
+curl -X POST "$HOSTED_URL/api/runtime-verification/live-check"
 ```
 
-`requiredLiveReady` should be `true`. If it is false, read the failing check details before recording the final video.
+`runtimeReady` should be `true`. If it is false, read the failing check details before recording a product walkthrough.

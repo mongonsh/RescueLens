@@ -11,7 +11,7 @@ import { runArizeFailureWorkflow } from "./src/arizeMcpClient.js";
 import { invokeAgentBuilderInteraction } from "./src/agentBuilderClient.js";
 import { getIntegrationStatus } from "./src/integrationStatus.js";
 import { buildArizeCvTelemetry } from "./src/arizeCv.js";
-import { buildSubmissionReadiness } from "./src/submissionReadiness.js";
+import { buildRuntimeVerification } from "./src/runtimeVerification.js";
 import {
   createDispatchTask,
   createEvalReport,
@@ -195,18 +195,18 @@ async function handleApi(req, res) {
     return;
   }
 
-  if (req.method === "GET" && url.pathname === "/api/submission-readiness") {
+  if (req.method === "GET" && url.pathname === "/api/runtime-verification") {
     let liveData = null;
     try {
       liveData = await fetchLiveDisasterData();
     } catch {
       liveData = null;
     }
-    sendJson(res, 200, buildSubmissionReadiness({ liveData }));
+    sendJson(res, 200, buildRuntimeVerification({ liveData }));
     return;
   }
 
-  if (req.method === "POST" && url.pathname === "/api/submission-readiness/live-check") {
+  if (req.method === "POST" && url.pathname === "/api/runtime-verification/live-check") {
     const frame = missionData.frames[0];
     const trace = buildTraceForAnyFrame(frame);
     let liveData = null;
@@ -218,7 +218,7 @@ async function handleApi(req, res) {
     const arizeWorkflow = await runArizeFailureWorkflow({ frame, trace });
     const agentBuilderRun = await invokeAgentBuilderInteraction({ frame, trace, mcpWorkflow: arizeWorkflow });
     sendJson(res, 200, {
-      ...buildSubmissionReadiness({ liveData, agentBuilderRun, arizeWorkflow }),
+      ...buildRuntimeVerification({ liveData, agentBuilderRun, arizeWorkflow }),
       agentBuilderRun,
       arizeWorkflow
     });
